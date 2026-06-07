@@ -121,6 +121,8 @@ I also instruct the model to reference sources within its response. For example,
 
 **Response accuracy:** Accurate / Partially accurate
 
+Additional thoughts: When I decided on a domain, wrote the questions, and answered to get the expected response, a lot of them came from my personal experience. I think the small amount of sources, and the type of sources. Can't account for all the details you learn as school goes alone. In this current scale, the unoficial guide to provide some insights that can be easily missed from just reading the official online, but yet to provide the full picture.
+
 
 ---
 
