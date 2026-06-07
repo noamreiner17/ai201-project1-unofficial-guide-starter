@@ -66,7 +66,7 @@ The domain I chose is an unofficial guide for first-year undergraduate housing. 
 
 **Embedding model:** all-MiniLM-L6-v2 via sentence-transformers
 
-**Top-k:** 4
+**Top-k:** 6
 
 **Production tradeoff reflection:**
 I am using all-MiniLM-L6-v2 because it runs locally, has low latency, and is highly efficient for a small-scale specialized dataset like Brandeis housing (small school :)). I selected a top-k of 4 chunks because my domain relies on contrasting perspectives (offical and unoffical sources). Retrieving 4 chunks ensures that the user can anticipate information from both sides.

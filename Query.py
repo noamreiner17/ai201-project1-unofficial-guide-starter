@@ -37,7 +37,18 @@ EXACTLY: "I don't have enough information on that."
 3. Do not invent dorm names, policies, amenities, or details that are not in the context.
 4. When the context contains conflicting views (e.g. an official description vs. a student \
 opinion), present both rather than picking one.
-5. Be concise and factual. Do not speculate."""
+5. Be concise and factual. Do not speculate.
+6. When citing sources, embed the source filename in parentheses immediately after \
+your attribution phrase, like this: \
+'According to students on Reddit (source: First-Year Quad Hierarchy & Building Attributes.txt), ...' \
+or 'According to the official Brandeis website (source: OFFICIAL_East_Quad.txt), ...'. \
+Use the exact filename from the (source: ...) label in the context. \
+NEVER say 'according to the context' or 'according to the documents'.
+7. Always check ALL context chunks, not just the first one. If multiple sources \
+support the same point, cite them together: \
+'According to both the official Brandeis website (source: OFFICIAL_New_FirstYear_Housing.txt) \
+and students on Reddit (source: Massell vs. North Quad.txt), ...'. \
+If sources say different things, present both perspectives separately."""
 
 USER_TEMPLATE = """CONTEXT:
 {context}
@@ -70,12 +81,13 @@ def _init():
 def _format_context(chunks):
     """
     Build the context block the LLM sees. Each chunk is labeled with its source
-    filename so the model can attribute within its prose — but the authoritative
-    source list is assembled separately in ask() from metadata, not from this text.
+    FILENAME (not a number), so when the model attributes information in its prose
+    it names the actual document. The authoritative source list is still assembled
+    separately in ask() from metadata.
     """
     blocks = []
-    for i, c in enumerate(chunks, 1):
-        blocks.append(f"[Document {i} — source: {c['source']}]\n{c['text']}")
+    for c in chunks:
+        blocks.append(f"(source: {c['source']})\n{c['text']}")
     return "\n\n".join(blocks)
 
 
@@ -107,6 +119,7 @@ def ask(question, k=TOP_K):
         temperature=0.1,   # low temp keeps it close to the context, less invention
     )
     answer = resp.choices[0].message.content.strip()
+    
 
     # If the model refused, don't attach sources (nothing was actually used).
     if answer.lower().startswith("i don't have enough information"):

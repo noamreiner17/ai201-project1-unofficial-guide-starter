@@ -20,7 +20,7 @@ from ingest import chunk_documents
 
 # --- Spec values from planning.md (Retrieval Approach section) ---
 EMBED_MODEL_NAME = "all-MiniLM-L6-v2"
-TOP_K = 4
+TOP_K = 6
 CHROMA_DIR = "./chroma_db"
 COLLECTION_NAME = "brandeis_housing"
 
