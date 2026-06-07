@@ -32,12 +32,22 @@ The Unofficial Guide will focus specifically on Brandeis first-year housing, cov
 | 2 |Brandeis University - Massell Quad|Offical Website| https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/massell.html|
 | 3 |Brandeis University - North Quad|Offical Website | https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/north.html|
 | 4 |Brandeis University - East Quad|Offical Website| https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/east.html|
-| 5 | | | |
-| 6 | | | |
-| 7 | | | |
-| 8 | | | |
-| 9 | | | |
-| 10 | | | |
+| # | Source | Type | URL or file path |
+|---|--------|------|-----------------|
+| 1 |Brandeis University - Information for First-Years, Midyears and Transfers|Offical Website| https://www.brandeis.edu/dcl/housing-on-campus/new-first-year/index.html|
+| 2 |Brandeis University - Massell Quad|Offical Website| https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/massell.html|
+| 3 |Brandeis University - North Quad|Offical Website | https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/north.html|
+| 4 |Brandeis University - East Quad|Offical Website| https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/east.html|
+| 5 | Massell vs. North Quad Comprehensive Breakdown | Student Forum Thread | https://www.reddit.com/r/brandeis/comments/1hfxjfr/dorms_and_housing/ |
+| 6 | First-Year Quad Hierarchy & Building Attributes | Student Forum Thread | https://www.reddit.com/r/brandeis/comments/1kgl5u2/freshman_dorms/ |
+| 7 | The Shapiro Forced Triple and Basement Warning | Student Forum Comment | https://www.reddit.com/r/brandeis/comments/1kgl5u2/freshman_dorms/ |
+| 8 | The Freshman Roommate Matching Form Reality | Student Forum Thread | https://www.reddit.com/r/brandeis/comments/1stwmdh/first_year_housing/ |
+| 9 | Gordon Hall Natural Triple Structural Nuances | Student Forum Thread | https://www.reddit.com/r/brandeis/comments/1mofavh/gordon_hall_double/ |
+| 10 | Cable Hall Floor Assignment Logistics | Student Forum Thread | https://www.reddit.com/w26pxh/cable_hall/ |
+| 11 | The Infrastructure Reality Check (No A/C & Flooding Risk) | Student Forum Thread | https://www.reddit.com/r/brandeis/comments/1bm9fal/dorms_amenities/ |
+| 12 | Downstream Strategy: First-Year to Sophomore Lottery Shift | Student Forum Thread | https://www.reddit.com/r/brandeis/comments/1rndsdr/housing_numbers/ |
+| 14 | The Truth About "Overflow" Placements | Student Forum Comment | https://www.reddit.com/r/brandeis/comments/1hfxjfr/dorms_and_housing/ |
+| 15 |Brandeis Considering Demolition of East Quad Following Completion of New Residence Hall |Student News Paper| https://brandeishoot.com/brandeis-considering-demolition-of-east-quad-following-completion-of-new-residence-hall/ |
 
 ---
 
