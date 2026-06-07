@@ -111,6 +111,8 @@ If deploying this at scale without cost constraints, I would upgrade to a commer
      You can use ASCII art, a Mermaid diagram, or embed a sketch as an image.
      You'll use this diagram as context when prompting AI tools to implement each stage. -->
 
+![RAG Pipeline Diagram](pineline.png)
+
 ---
 
 ## AI Tool Plan
@@ -124,6 +126,34 @@ If deploying this at scale without cost constraints, I would upgrade to a commer
      "I'll use AI to help me code" is not a plan.
      "I'll give Claude my Chunking Strategy section and ask it to implement chunk_text()
      with my specified chunk size and overlap" is a plan. -->
+
+
+## AI Tool Plan
+
+### 1. Ingestion & Chunking Implementation
+* **AI Tool:** Claude 3.5 Sonnet
+* **Inputs Given to AI:** I will feed Claude our raw text/markdown file layout requirements and the **Chunking** section of this architecture layout. I will explicitly instruct it to use `langchain_text_splitters.RecursiveCharacterTextSplitter` with a hardcoded chunk size of 600 characters and a 150-character overlap.
+* **Expected Output:** A clean, modular Python function named `chunk_documents(directory_path)` that reads the local text corpus and breaks them into overlapping text blocks.
+* **Verification Plan:** I will print the length and string contents of three random chunks to the terminal to manually verify that text cuts cleanly at logical paragraph/sentence boundaries and that the 150-character overlap is present.
+
+### 2. Embedding & Vector Database Storage Setup
+* **AI Tool:** GitHub Copilot 
+* **Inputs Given to AI:** I will provide Copilot with our **Embedding + Vector Storage** stage details, explicitly specifying the local `all-MiniLM-L6-v2` model from the `sentence-transformers` library and a local persistent `ChromaDB` client.
+* **Expected Output:** Inline code completions and script blocks to initialize a local database directory (`./chroma_db`), vectorize the generated chunks, and save the persistent collection index to disk.
+* **Verification Plan:** I will execute the storage script and physically check my project root directory to ensure a non-empty `./chroma_db` folder was correctly created and populated.
+
+### 3. Semantic Retrieval Logic
+* **AI Tool:** Claude 3.5 Sonnet
+* **Inputs Given to AI:** I will provide the AI with our **Retrieval** parameters (demanding a hardcoded $top\_k = 4$ context limit) and **Anticipated Challenge 1** regarding local student abbreviations and isolated hall names.
+* **Expected Output:** A specialized retrieval function `retrieve_housing_context(user_query)` that searches the local ChromaDB vector collection and extracts exactly the top 4 most semantically relevant text context strings.
+* **Verification Plan:** I will mock a query using student shorthand (e.g., searching "Shapiro") and print the returned chunks to ensure the system successfully surfaces the intended contextual text from the database.
+
+### 4. System Prompt Engineering & Generation via Groq
+* **AI Tool:** ChatGPT (GPT-4o)
+* **Inputs Given to AI:** I will pass ChatGPT our project core domain goals, our **Evaluation Plan** containing the 5 test questions, and **Anticipated Challenge 2** regarding the conflicting "Official vs. Unofficial" student truths. 
+* **Expected Output:** A robust, defensively designed Python system prompt template string. The prompt will strictly instruct the Groq model (such as Llama 3) to objectively cross-reference both administrative facts and raw Reddit feedback, cite its sources, and strictly avoid inventing fake details.
+* **Verification Plan:** I will feed the 5 evaluation questions through the finalized Groq pipeline loop and verify that the final text outputs closely match the specific answers logged in our Evaluation table.
+
 
 **Milestone 3 — Ingestion and chunking:**
 
