@@ -133,4 +133,4 @@ if __name__ == "__main__":
         print("=" * 72)
         for r in retrieve_housing_context(q, collection, embedder):
             print(f"\n  distance={r['distance']:.3f}  source={r['source']}  chunk={r['chunk_index']}")
-            print(f"  {r['text'][:300]}{'...' if len(r['text']) > 300 else ''}")
+            print(f"  {r['text'][:]}{'...' if len(r['text']) > 300 else ''}")

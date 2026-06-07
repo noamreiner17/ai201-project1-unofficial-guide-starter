@@ -133,8 +133,10 @@ def ask(question, k=TOP_K):
 if __name__ == "__main__":
     # End-to-end grounding test on eval queries + one out-of-scope question.
     tests = [
+        "Which freshman housing is the best?",
+        "How does the housing application work / matching form advice?",
+        "Storage and room layouts in the quads?",
         "What is a forced triple and which building is it most common in?",
-        "What do students advise about the roommate matching form?",
         "What happens if the freshman quads fill up due to high enrollment?",
         "What is the meal plan price for first-year students?",   # out-of-scope -> should refuse
     ]

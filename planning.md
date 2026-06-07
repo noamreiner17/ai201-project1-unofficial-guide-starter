@@ -90,6 +90,9 @@ If deploying this at scale without cost constraints, I would upgrade to a commer
 | 4 | What is a "forced triple" and which first-year building is it most commonly found in? | A forced triple is a standard double room that the university fills with three students due to high enrollment. Student warnings explicitly point out that these crowded setups are most common in Shapiro Hall. |
 | 5 | What happens if the main freshman quads fill up due to high enrollment? | When Brandeis over-admits a freshman class and Massell or North fill to capacity, first-year students face "overflow placement." This means they are assigned to live outside the designated freshman areas, typically in East Quad. |
 
+
+
+
 ---
 
 ## Anticipated Challenges
