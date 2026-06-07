@@ -28,10 +28,10 @@ The Unofficial Guide will focus specifically on Brandeis first-year housing, cov
 
 | # | Source | Type | URL or file path |
 |---|--------|------|-----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
+| 1 |Brandeis University - Information for First-Years, Midyears and Transfers|Offical Website| https://www.brandeis.edu/dcl/housing-on-campus/new-first-year/index.html|
+| 2 |Brandeis University - Massell Quad|Offical Website| https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/massell.html|
+| 3 |Brandeis University - North Quad|Offical Website | https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/north.html|
+| 4 |Brandeis University - East Quad|Offical Website| https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/east.html|
 | 5 | | | |
 | 6 | | | |
 | 7 | | | |
