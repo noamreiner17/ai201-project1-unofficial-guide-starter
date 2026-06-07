@@ -112,12 +112,13 @@ I also instruct the model to reference sources within its response. For example,
 |---|----------|-----------------|------------------------------|-------------------|-------------------|
 | 1 |Which freshman housing is the best? | North and Massell offer better dorm facilities, however their locations provide different benefits. East Quad offers the worst facilities and is mostly used for overflow. | The system was able to highlight and diffrentiate between the different facilities in North and Massell but didn't mentioned East Quad.| Relevant | Partially accurate |
 | 2 | How does the housing application work for freshmen, and what do students advise about the matching form? | Officially, students complete a lifestyle questionnaire on the DCL portal for random matching. Unofficially, students emphasize being completely honest about sleeping/cleanliness habits rather than answering ideally, to avoid bad pairings. | Cited official site for the First-Year Housing Application, then student forums for the lifestyle-form details and random roommate assignment. Missed the "don't lie on the form" advice. | Relevant | Partially accurate |
-| 3 | What should incoming freshmen expect regarding storage and room layouts in the quads? |Official sites promise basic furniture, but students note that layouts vary wildly between quads. For example, some rooms have built-in open shelves over the beds and under-bed drawers, meaning floor layouts are highly dependent on which building you get. | Gave East Quad square footage from official site but then said it lacked storage info and partially refused. Missed the student details on built-in shelves / under-bed drawers. | Partially relevant | Partially accurate 
-| 4 | What is a "forced triple" and which first-year building is it most commonly found in? | A forced triple is a standard double room that the university fills with three students due to high enrollment. Student warnings explicitly point out that these crowded setups are most common in Shapiro Hall. | Double filled with 3 students; most common in Shapiro | Correctly identified Shapiro as most common, but flagged that the definition isn't stated, and didn't try to guess | Relevant |Accurate|
-| 5 | What happens if the main freshman quads fill up due to high enrollment? | When Brandeis over-admits a freshman class and Massell or North fill to capacity, first-year students face "overflow placement." This means they are assigned to live outside the designated freshman areas, typically in East Quad. | Cited official site (students assigned to Massell/North/East) plus student forums (East used when they run out of housing). Correct. | Relevant | Accurate |
-| 6 (Out-of-scope question) | What is the meal plan price for first-year students? | Not enough information to answer the question | I don't have enough information on that.| I don't have enough information on that. | N/A | Accurate |
+| 3 | What should incoming freshmen expect regarding storage and room layouts in the quads? |What should incoming freshmen expect regarding storage and room layouts in the quads? | Official sites promise basic furniture, but students note that layouts vary wildly between quads. For example, some rooms have built-in open shelves over the beds and under-bed drawers, meaning floor layouts are highly dependent on which building you get.| Gave East Quad square footage from official site but then said it lacked storage info and partially refused. Missed the student details on built-in shelves / under-bed drawers. | Partially relevant | Partially accurate 
+| 4 | What is a "forced triple" and which first-year building is it most commonly found in? | A forced triple is a standard double room that the university fills with three students due to high enrollment. Student warnings explicitly point out that these crowded setups are most common in Shapiro Hall. Double room filled with 3 students; most common in Shapiro | Correctly identified Shapiro as most common, but flagged that the definition isn't stated, and didn't try to guess |Relevant|Accurate|
+| 5 | What happens if the main freshman quads fill up due to high enrollment? | When Brandeis over-admits a freshman class and Massell or North fill to capacity, first-year students face "overflow placement." This means they are assigned to live outside the designated freshman areas, typically in East Quad. | Cited the exact same thing from both offical and unoffical sources | Relevant | Accurate |
+| 6 (Out-of-scope question) | What is the meal plan price for first-year students? | Not enough information to answer the question| I don't have enough information on that. | N/A | Accurate |
 
 **Retrieval quality:** Relevant
+
 **Response accuracy:** Accurate / Partially accurate
 
 
@@ -136,13 +137,13 @@ I also instruct the model to reference sources within its response. For example,
      "The embedding model treated the professor's nickname as out-of-vocabulary and returned
      results from an unrelated review" is an explanation. -->
 
-**Question that failed:**
+**Question that failed:** Intially "What happens if the freshman quads fill up due to high enrollment?" (at the original top-k = 4)
 
-**What the system returned:**
+**What the system returned:** At k=4, the system returned "I don't have enough information on that", though the answer (overflow → East Quad) existed in the sources.
 
-**Root cause (tied to a specific pipeline stage):**
+**Root cause (tied to a specific pipeline stage):** This was a retrieval-ranking failure, not a generation failure. The relevant fact lives in a chunk from Massell_vs_North_Quad_5 that is mostly about North Quad — the East Quad overflow detail is a single clause ("they only house freshmen there when they run out of housing") buried in a longer positive review. Because the chunk's embedding is dominated by the North Quad content, it ranked at position 5–6 for an overflow query, below the top-4 cutoff. Compounding this, the user's vocabulary ("fill up," "high enrollment," "overflow") doesn't match the student phrasing ("run out of housing"), which is exactly the official-vs-student vocabulary gap predicted in Anticipated Challenge 1. So the correct chunk was never passed to the LLM, and the model correctly refused rather than inventing an answer.
 
-**What you would change to fix it:**
+**What you would change to fix it:** I raised top-k from 4 to 6, which pulled the overflow chunk into the retrieved set and let the system answer correctly. A more robust fix would be re-chunking so that distinct topics (North Quad praise vs. East Quad overflow) land in separate chunks, giving the overflow fact its own focused embedding. Also adding the official East Quad and first-year housing pages also helped, since they describe overflow in vocabulary closer to the query.
 
 ---
 
@@ -153,8 +154,11 @@ I also instruct the model to reference sources within its response. For example,
 
 **One way the spec helped you during implementation:**
 
+Writing the Chunking Strategy and Retrieval Approach sections in planning.md before coding meant I could hand those exact parameters (600-char chunks, 150 overlap, all-MiniLM-L6-v2, ChromaDB) to an AI tool and get implementation code that matched my design instead of generic boilerplate. Having the parameters fixed in advance also made debugging straightforward — when chunks behaved unexpectedly, I had a written spec to check the implementation against rather than second-guessing what I'd intended.
+
 **One way your implementation diverged from the spec, and why:**
 
+Considering the failed case described above: In my planning.md specified top-k = 4 (as suggested), but during Milestone 4 testing I found that the overflow answer (evaluation question 5) consistently ranked at position 5–6 and never surfaced at k=4, causing the system to refuse a question it should have answered. I raised top-k to 6 so the correct chunk would be retrieved. 
 ---
 
 ## AI Usage
@@ -170,12 +174,23 @@ I also instruct the model to reference sources within its response. For example,
 
 **Instance 1**
 
-- *What I gave the AI:*
-- *What it produced:*
+- *What I gave the AI:* Building the ingestion script: gave it my Chunking Strategy (600 chars / 150 overlap) and document types (Reddit exports + official pages), asked for a RecursiveCharacterTextSplitter implementation.
+
+
+- *What it produced:* 
+     It produced chunk_documents() — loads.txt files, strips boilerplate/HTML, chunks with my parameters, attaches source + chunk_index metadata.
+
 - *What I changed or overrode:*
+     Removed JSONL step so it reads files directly (keeping the project complexity low), and merged the official-page fetching into the script as a built-in first stage. Verified by printing sample chunks and confirming clean cuts + no leftover boilerplate.
 
 **Instance 2**
 
-- *What I gave the AI:*
+- *What I gave the AI:*  Used Claude with my grounding requirement + the example citation format. Asked for the system prompt, ask() function, and Gradio UI.
 - *What it produced:*
-- *What I changed or overrode:*
+     It produced a strict context-only system prompt with a fixed refusal string, an ask() that builds the source list programmatically from metadata, and a working Gradio interface.
+- *What I changed or overrode:* 
+     I iterated on citation formatting — the model kept saying "according to the context" and "Document N."
+     I restructured the prompt - label context by filename not number, distinguish official ("official website") from student ("student forums") sources, and use a "However"/"Additionally" structure when both source types contribute.
+
+
+

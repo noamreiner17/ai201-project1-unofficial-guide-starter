@@ -101,7 +101,7 @@ If deploying this at scale without cost constraints, I would upgrade to a commer
      Consider: noisy or inconsistent documents, missing source attribution, off-topic
      retrieval, chunks that split key information across boundaries. -->
 
-1. **Hyper-Local Abbreviations and Isolated Hall Names:** Incoming freshmen will likely search for broad terms like "Massell Quad" or "North Quad," but seasoned students on Reddit rarely use those official quad names. Instead, they drop abbreviations, specific building names like "Shapiro," "DeRoy," "Usen," or "Cable" without explicitly stating which quad they belong to. Because standard embedding models look for semantic similarity, a chunk that only mentions "Usen features tile floors" might not rank highly when a user searches for "Massell Quad layout." This language gap between official administrative terms and shorthand student slang risks burying the exact answers the user is looking for.
+1. **Hyper-Local Abbreviations, Isolated Hall Names, and Student Slang:** Incoming freshmen will likely search for broad terms like "Massell Quad" or "North Quad," but seasoned students on Reddit rarely use those official quad names. Instead, they drop abbreviations, specific building names like "Shapiro," "DeRoy," "Usen," or "Cable" without explicitly stating which quad they belong to. Because standard embedding models look for semantic similarity, a chunk that only mentions "Usen features tile floors" might not rank highly when a user searches for "Massell Quad layout." This language gap between official administrative terms and shorthand student slang risks burying the exact answers the user is looking for.
 
 2. **Conflicting Official vs. Unofficial information:** Because the dataset deliberately contrasts university text with raw student reviews, the LLM will frequently encounter contradictory information within the retrieved context.
 ---
@@ -143,7 +143,7 @@ I directed: label context by filename not number, distinguish official ("officia
  - Gemini: during sourcing to find relevant Reddit threads and official Brandeis housing pages, and to filter which discussions had substantive content.
 
  - Claude:
-     building the ingestion script: gave it my Chunking Strategy (600 chars / 150 overlap) and document types (Reddit exports + official pages), asked for a RecursiveCharacterTextSplitter implementation.
+     Building the ingestion script: gave it my Chunking Strategy (600 chars / 150 overlap) and document types (Reddit exports + official pages), asked for a RecursiveCharacterTextSplitter implementation.
 
      It produced chunk_documents() — loads.txt files, strips boilerplate/HTML, chunks with my parameters, attaches source + chunk_index metadata.
 
