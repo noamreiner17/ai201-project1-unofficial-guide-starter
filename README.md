@@ -16,6 +16,10 @@
 
 ---
 
+Coming to college can be a challenging and confusing process. On top of adjusting to academics, for most students, it is their first time living completely alone. At Brandeis University, first-year housing is mandatory, but in an attempt to simplify the official selection process, the university eliminates a lot of crucial, granular information from its public website - such as detailed floor plans, layout quirks, and building age realities. This lack of transparency can make new students feel more anxious and insecure about where they will live.
+
+The Unofficial Guide will focus specifically on Brandeis first-year housing, covering the realities of roommate matching, physical housing options, and unwritten survival tips for incoming freshmen.
+
 ## Document Sources
 
 <!-- List every source you collected documents from.
