@@ -1,20 +1,3 @@
-"""
-query.py — Grounded generation for The Unofficial Guide (Brandeis housing RAG).
-
-Implements Milestone 5 grounding requirements:
-  - Answers come from retrieved context ONLY (system prompt enforces it).
-  - Refuses ("I don't have enough information on that.") when context is insufficient.
-  - Source attribution is GUARANTEED PROGRAMMATICALLY — sources are read from the
-    retrieved chunks' metadata in code, not parsed out of the LLM's free text.
-
-Pipeline stages (per planning.md architecture diagram):
-    ... Retrieval -> Generation
-        (ChromaDB)    (Groq llama-3.3-70b-versatile)
-
-ask(question) -> {"answer": str, "sources": [filenames], "chunks": [retrieval dicts]}
-is the single end-to-end entry point the Gradio interface calls.
-"""
-
 import os
 from dotenv import load_dotenv
 from groq import Groq
@@ -24,9 +7,8 @@ from retrieval import load_index, build_index, retrieve_housing_context, TOP_K
 
 load_dotenv()  # reads GROQ_API_KEY from .env
 
-LLM_MODEL = "llama-3.3-70b-versatile"   # Milestone 5 recommended default
+LLM_MODEL = "llama-3.3-70b-versatile" 
 
-# --- Grounding system prompt: ENFORCES context-only answering + refusal ---
 SYSTEM_PROMPT = """You are an assistant that answers questions about Brandeis University \
 first-year housing using ONLY the provided context documents.
 
@@ -81,6 +63,7 @@ def _init():
     return _client, _collection, _embedder
 
 
+#formating the matadata for the LLM to use in its answer generation.
 def _format_context(chunks):
     blocks = []
     for c in chunks:
@@ -98,7 +81,7 @@ def ask(question, k=TOP_K):
     End-to-end grounded query:
       1. Retrieve top-k chunks for the question.
       2. Generate an answer constrained to those chunks.
-      3. Attach the source filenames PROGRAMMATICALLY from chunk metadata.
+      3. Attach the source filenames from chunk metadata.
 
     Returns {"answer", "sources", "chunks"}.
     """

@@ -1,18 +1,3 @@
-"""
-retrieval.py — Embedding + vector store + retrieval for The Unofficial Guide.
-
-Implements Milestone 4 per planning.md Retrieval Approach:
-    Embedding model : all-MiniLM-L6-v2 (sentence-transformers, local, no API key)
-    Vector store    : ChromaDB, persistent on disk at ./chroma_db
-    Retrieval       : top-k = 4 (planning.md spec)
-
-Pipeline stages (per planning.md architecture diagram):
-    ... Chunking -> Embedding + Vector Store -> Retrieval ...
-
-Each stored chunk keeps metadata {"source": <filename>, "chunk_index": <int>}
-carried over from ingest.py, so retrieval results are attributable (Milestone 5).
-"""
-
 import chromadb
 from sentence_transformers import SentenceTransformer
 
@@ -24,18 +9,10 @@ TOP_K = 6
 CHROMA_DIR = "./chroma_db"
 COLLECTION_NAME = "brandeis_housing"
 
-
-# ----------------------------------------------------------------------------- #
-# EMBEDDING MODEL                                                                #
-# ----------------------------------------------------------------------------- #
 def get_embedder():
     """Load the local all-MiniLM-L6-v2 model. Downloads once, then cached."""
     return SentenceTransformer(EMBED_MODEL_NAME)
 
-
-# ----------------------------------------------------------------------------- #
-# BUILD / LOAD THE VECTOR STORE                                                  #
-# ----------------------------------------------------------------------------- #
 def build_index(directory_path="text_files", reset=True):
     """
     Run ingestion -> embed every chunk -> store in a persistent ChromaDB collection
@@ -85,16 +62,11 @@ def load_index():
     return collection, embedder
 
 
-# ----------------------------------------------------------------------------- #
-# RETRIEVAL                                                                      #
-# ----------------------------------------------------------------------------- #
 def retrieve_housing_context(query, collection, embedder, k=TOP_K):
     """
     Embed the query, search the collection, return the top-k chunks.
-
     Returns a list of dicts: {text, source, chunk_index, distance}.
-    distance is cosine distance — lower is a closer match (per the spec's
-    'scores above 0.6-0.7 indicate weak matches' guidance).
+    distance is cosine distance — lower is a closer match.
     """
     q_emb = embedder.encode([query]).tolist()
     res = collection.query(query_embeddings=q_emb, n_results=k)
@@ -111,10 +83,7 @@ def retrieve_housing_context(query, collection, embedder, k=TOP_K):
         })
     return results
 
-
-# ----------------------------------------------------------------------------- #
-# RETRIEVAL TEST (Milestone 4: test >=3 evaluation queries, print chunks+scores) #
-# ----------------------------------------------------------------------------- #
+#sample test run to inspect the embedding and vecotr storage
 if __name__ == "__main__":
     collection, embedder = build_index()
 

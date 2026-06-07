@@ -159,5 +159,5 @@ If deploying this at scale without cost constraints, I would upgrade to a commer
 
      It produced a strict context-only system prompt with a fixed refusal string, an ask() that builds the source list programmatically from metadata, and a working Gradio interface.
      
-     I iterated on citation formatting — the model kept saying "according to the context" and "Document N."
+     I iterated on citation formatting - the model kept saying "according to the context" and "Document N."
      I restructured the prompt - label context by filename not number, distinguish official ("official website") from student ("student forums") sources, and use a "However"/"Additionally" structure when both source types contribute.

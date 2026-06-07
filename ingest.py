@@ -1,20 +1,3 @@
-"""
-ingest.py — Document ingestion and chunking for The Unofficial Guide (Brandeis housing RAG).
-
-Implements Milestone 3 end to end:
-    1. (Optional) Fetch official Brandeis web sources and cache them as .txt in text_files/.
-    2. Load all documents from disk (local Reddit exports + cached official pages).
-    3. Clean each document (strip boilerplate/HTML tags/entities, normalize whitespace).
-    4. Chunk per planning.md spec: RecursiveCharacterTextSplitter, 600 chars / 150 overlap.
-    5. Print 5 representative chunks for inspection + report total chunk count.
-
-Pipeline stages (per planning.md architecture diagram):
-    Document Ingestion -> Chunking
-    (fetch + load .txt)   (RecursiveCharacterTextSplitter: 600 / 150)
-
-Each chunk carries metadata {"source": <filename>, "chunk_index": <int>} so Milestone 5
-can show source attribution and Anticipated Challenge 1 (hall-name locality) stays tractable.
-"""
 
 import os
 import re
@@ -22,13 +5,13 @@ import html
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 
-# --- Spec values from planning.md (Chunking Strategy section) ---
+# Spec values from planning.md (Chunking Strategy section) 
 CHUNK_SIZE = 600
 CHUNK_OVERLAP = 150
 CORPUS_DIR = "text_files"
 
 # Official sources from planning.md Documents table. These are fetched once and
-# cached as .txt in CORPUS_DIR; on later runs they're already on disk and skipped.
+# cached as .txt in CORPUS_DIR on later runs they're already on disk and skipped. Also used in Query.py for source attribution,
 OFFICIAL_SOURCES = {
     "OFFICIAL_Massell_Quad.txt":
         "https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/massell.html",
@@ -43,9 +26,7 @@ OFFICIAL_SOURCES = {
 }
 
 
-# ----------------------------------------------------------------------------- #
-# STAGE 1: FETCH OFFICIAL SOURCES (run once, cached to disk)                     #
-# ----------------------------------------------------------------------------- #
+
 def fetch_official_sources(directory_path=CORPUS_DIR):
     """
     Download the official Brandeis pages listed in planning.md, clean the HTML,
@@ -92,9 +73,7 @@ def fetch_official_sources(directory_path=CORPUS_DIR):
             print(f"[fetch] failed {fname}: {e}")
 
 
-# ----------------------------------------------------------------------------- #
-# STAGE 2: LOAD                                                                  #
-# ----------------------------------------------------------------------------- #
+
 def load_documents(directory_path: str):
     """Load every .txt file from disk as raw text. Returns list of {source, raw}."""
     raw_docs = []
@@ -106,17 +85,9 @@ def load_documents(directory_path: str):
     return raw_docs
 
 
-# ----------------------------------------------------------------------------- #
-# STAGE 3: CLEAN                                                                 #
-# ----------------------------------------------------------------------------- #
 def clean_text(raw: str) -> str:
     """
     Clean a raw document into substantive content ready for chunking.
-
-    REMOVES: speaker-label boilerplate ("Student comment:/question:"), HTML tags,
-    HTML entities (&amp; &#39; &nbsp;), and excess whitespace.
-    KEEPS: review text, opinions, layout descriptions, hall names, floor numbers,
-    dining-hall context — the substantive content the system answers from.
     """
     text = re.sub(r"<[^>]+>", "", raw)                                  # strip tags
     text = html.unescape(text)                                          # decode entities
@@ -140,9 +111,6 @@ def clean_documents(raw_docs):
     return cleaned
 
 
-# ----------------------------------------------------------------------------- #
-# STAGE 4: CHUNK (planning.md spec: 600 / 150)                                   #
-# ----------------------------------------------------------------------------- #
 def chunk_documents(directory_path=CORPUS_DIR, fetch=True):
     """
     Full pass: (optionally fetch official) -> load -> clean -> chunk -> attach metadata.
@@ -159,7 +127,7 @@ def chunk_documents(directory_path=CORPUS_DIR, fetch=True):
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=CHUNK_SIZE,
         chunk_overlap=CHUNK_OVERLAP,
-        separators=["\n\n", "\n", ". ", " ", ""],   # paragraph -> line -> sentence -> word -> char
+        separators=["\n\n", "\n", ". ", " ", ""],  # paragraph -> line -> sentence -> word -> char
         length_function=len,
     )
 
@@ -174,10 +142,7 @@ def chunk_documents(directory_path=CORPUS_DIR, fetch=True):
             )
     return all_chunks
 
-
-# ----------------------------------------------------------------------------- #
-# STAGE 5: INSPECT                                                               #
-# ----------------------------------------------------------------------------- #
+#sample test run to inspect the chunking output
 if __name__ == "__main__":
     chunks = chunk_documents()
 
