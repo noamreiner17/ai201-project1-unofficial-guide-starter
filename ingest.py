@@ -1,3 +1,21 @@
+"""
+ingest.py — Document ingestion and chunking for The Unofficial Guide (Brandeis housing RAG).
+
+Implements Milestone 3 end to end:
+    1. (Optional) Fetch official Brandeis web sources and cache them as .txt in text_files/.
+    2. Load all documents from disk (local Reddit exports + cached official pages).
+    3. Clean each document (strip boilerplate/HTML tags/entities, normalize whitespace).
+    4. Chunk per planning.md spec: RecursiveCharacterTextSplitter, 600 chars / 150 overlap.
+    5. Print 5 representative chunks for inspection + report total chunk count.
+
+Pipeline stages (per planning.md architecture diagram):
+    Document Ingestion -> Chunking
+    (fetch + load .txt)   (RecursiveCharacterTextSplitter: 600 / 150)
+
+Each chunk carries metadata {"source": <filename>, "chunk_index": <int>} so Milestone 5
+can show source attribution and Anticipated Challenge 1 (hall-name locality) stays tractable.
+"""
+
 import os
 import re
 import html
@@ -7,15 +25,78 @@ from langchain_core.documents import Document
 # --- Spec values from planning.md (Chunking Strategy section) ---
 CHUNK_SIZE = 600
 CHUNK_OVERLAP = 150
+CORPUS_DIR = "text_files"
+
+# Official sources from planning.md Documents table. These are fetched once and
+# cached as .txt in CORPUS_DIR; on later runs they're already on disk and skipped.
+OFFICIAL_SOURCES = {
+    "OFFICIAL_Massell_Quad.txt":
+        "https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/massell.html",
+    "OFFICIAL_North_Quad.txt":
+        "https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/north.html",
+    "OFFICIAL_East_Quad.txt":
+        "https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/east.html",
+    "OFFICIAL_New_FirstYear_Housing.txt":
+        "https://www.brandeis.edu/dcl/housing-on-campus/new-first-year/index.html",
+    "HOOT_East_Quad_Demolition.txt":
+        "https://brandeishoot.com/brandeis-considering-demolition-of-east-quad-following-completion-of-new-residence-hall/",
+}
+
 
 # ----------------------------------------------------------------------------- #
-# STAGE 1: LOAD                                                                  #
+# STAGE 1: FETCH OFFICIAL SOURCES (run once, cached to disk)                     #
+# ----------------------------------------------------------------------------- #
+def fetch_official_sources(directory_path=CORPUS_DIR):
+    """
+    Download the official Brandeis pages listed in planning.md, clean the HTML,
+    and cache each as a .txt in directory_path. Files already on disk are skipped,
+    so this only hits the network the first time (keeps later runs fast + reproducible).
+
+    Requires: pip install requests beautifulsoup4
+    Fails soft: if a fetch errors (offline, page moved), it prints a warning and
+    continues with whatever local files exist.
+    """
+    try:
+        import requests
+        from bs4 import BeautifulSoup
+    except ImportError:
+        print("[fetch] skipped — install with: pip install requests beautifulsoup4")
+        return
+
+    os.makedirs(directory_path, exist_ok=True)
+    headers = {"User-Agent": "Mozilla/5.0 (educational RAG project)"}
+
+    for fname, url in OFFICIAL_SOURCES.items():
+        path = os.path.join(directory_path, fname)
+        if os.path.exists(path):
+            continue  # already cached — don't re-scrape
+        try:
+            r = requests.get(url, headers=headers, timeout=20)
+            r.raise_for_status()
+            soup = BeautifulSoup(r.text, "html.parser")
+            # Drop non-content elements (nav, header, footer, scripts, etc.)
+            for tag in soup(["nav", "header", "footer", "script", "style",
+                             "aside", "form", "button"]):
+                tag.decompose()
+            main = soup.find("main") or soup.find("article") or soup.body or soup
+            text = html.unescape(main.get_text(separator="\n"))
+            # Keep substantive lines, drop short menu-ish fragments.
+            lines = [ln.strip() for ln in text.split("\n")]
+            lines = [ln for ln in lines if len(ln) > 40 or ln.endswith((".", "!", "?"))]
+            text = re.sub(r"\n{3,}", "\n\n", "\n\n".join(lines)).strip()
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(text)
+            flag = "  <-- short, inspect!" if len(text) < 200 else ""
+            print(f"[fetch] saved {fname} ({len(text)} chars){flag}")
+        except Exception as e:
+            print(f"[fetch] failed {fname}: {e}")
+
+
+# ----------------------------------------------------------------------------- #
+# STAGE 2: LOAD                                                                  #
 # ----------------------------------------------------------------------------- #
 def load_documents(directory_path: str):
-    """
-    Load every .txt file from disk as raw text (no cleaning yet).
-    Returns: list of {"source": filename, "raw": text}.
-    """
+    """Load every .txt file from disk as raw text. Returns list of {source, raw}."""
     raw_docs = []
     for fname in sorted(os.listdir(directory_path)):
         if not fname.lower().endswith(".txt"):
@@ -26,41 +107,24 @@ def load_documents(directory_path: str):
 
 
 # ----------------------------------------------------------------------------- #
-# STAGE 2: CLEAN                                                                 #
+# STAGE 3: CLEAN                                                                 #
 # ----------------------------------------------------------------------------- #
 def clean_text(raw: str) -> str:
     """
     Clean a raw document into substantive content ready for chunking.
 
-    REMOVES:
-      - Speaker-label boilerplate ("Student comment:", "Student question:") that
-        prefixes every post and repeats across every file — pure boilerplate.
-      - HTML tags and HTML entities (&amp;, &nbsp;, &#39; ...). None appear in the
-        current forum-export corpus, but this makes the cleaner safe if official
-        Brandeis web pages are added later.
-      - Excess whitespace / blank lines, so the splitter sees real paragraph breaks.
-
-    KEEPS:
-      - All review text, opinions, layout descriptions, hall names, floor numbers,
-        and dining-hall context — the substantive content the RAG system answers from.
+    REMOVES: speaker-label boilerplate ("Student comment:/question:"), HTML tags,
+    HTML entities (&amp; &#39; &nbsp;), and excess whitespace.
+    KEEPS: review text, opinions, layout descriptions, hall names, floor numbers,
+    dining-hall context — the substantive content the system answers from.
     """
-    text = raw
-
-    # Strip HTML tags if any slipped in (e.g., from a future scraped page).
-    text = re.sub(r"<[^>]+>", "", text)
-
-    # Decode HTML entities (&amp; -> &, &#39; -> ', &nbsp; -> space).
-    text = html.unescape(text)
-
-    # Remove the repeated speaker-label boilerplate at the start of any line.
-    text = re.sub(r"(?im)^\s*student\s+(comment|question)\s*:\s*", "", text)
-
-    # Normalize line endings, then collapse 3+ newlines to a single paragraph break.
+    text = re.sub(r"<[^>]+>", "", raw)                                  # strip tags
+    text = html.unescape(text)                                          # decode entities
+    text = re.sub(r"(?im)^\s*student\s+(comment|question)\s*:\s*", "", text)  # boilerplate
     text = text.replace("\r\n", "\n").replace("\r", "\n")
     text = re.sub(r"\n{3,}", "\n\n", text)
-    text = re.sub(r"[ \t]+\n", "\n", text)        # trailing spaces on lines
-    text = re.sub(r"[ \t]{2,}", " ", text)        # runs of spaces
-
+    text = re.sub(r"[ \t]+\n", "\n", text)
+    text = re.sub(r"[ \t]{2,}", " ", text)
     return text.strip()
 
 
@@ -77,15 +141,20 @@ def clean_documents(raw_docs):
 
 
 # ----------------------------------------------------------------------------- #
-# STAGE 3: CHUNK (planning.md spec: 600 / 150)                                   #
+# STAGE 4: CHUNK (planning.md spec: 600 / 150)                                   #
 # ----------------------------------------------------------------------------- #
-def chunk_documents(directory_path: str):
+def chunk_documents(directory_path=CORPUS_DIR, fetch=True):
     """
-    Full pass: load -> clean -> chunk -> attach metadata.
+    Full pass: (optionally fetch official) -> load -> clean -> chunk -> attach metadata.
     Returns: list[Document] with metadata {"source", "chunk_index"}.
+
+    fetch=True caches the official Brandeis pages on first run. Set fetch=False to
+    work purely offline from whatever .txt files already exist in directory_path.
     """
-    raw_docs = load_documents(directory_path)
-    cleaned = clean_documents(raw_docs)
+    if fetch:
+        fetch_official_sources(directory_path)
+
+    cleaned = clean_documents(load_documents(directory_path))
 
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=CHUNK_SIZE,
@@ -100,22 +169,18 @@ def chunk_documents(directory_path: str):
             if not piece.strip():
                 continue
             all_chunks.append(
-                Document(
-                    page_content=piece,
-                    metadata={"source": d["source"], "chunk_index": i},
-                )
+                Document(page_content=piece,
+                         metadata={"source": d["source"], "chunk_index": i})
             )
     return all_chunks
 
 
 # ----------------------------------------------------------------------------- #
-# STAGE 4: INSPECT                                                               #
+# STAGE 5: INSPECT                                                               #
 # ----------------------------------------------------------------------------- #
 if __name__ == "__main__":
-    DIRECTORY = os.environ.get("CORPUS_DIR", "text_files")
-    chunks = chunk_documents(DIRECTORY)
+    chunks = chunk_documents()
 
-    # --- Report total chunk count (Milestone 3 checklist) ---
     print(f"\n{'#' * 70}")
     print(f"TOTAL CHUNKS: {len(chunks)}")
     lengths = [len(c.page_content) for c in chunks]
@@ -123,11 +188,8 @@ if __name__ == "__main__":
         print(f"chunk length  min={min(lengths)}  max={max(lengths)}  avg={sum(lengths)//len(lengths)}")
     print(f"{'#' * 70}\n")
 
-    # --- Print 5 representative chunks for inspection ---
-    # Spread the sample across the corpus instead of clustering on one file.
     step = max(1, len(chunks) // 5)
-    sample = chunks[::step][:5]
-    for n, c in enumerate(sample, 1):
+    for n, c in enumerate(chunks[::step][:5], 1):
         print("=" * 70)
         print(f"SAMPLE {n}  |  source: {c.metadata['source']}  |  "
               f"chunk_index: {c.metadata['chunk_index']}  |  {len(c.page_content)} chars")

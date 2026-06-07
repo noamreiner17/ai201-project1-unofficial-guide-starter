@@ -51,13 +51,13 @@ The Unofficial Guide will focus specifically on Brandeis first-year housing, cov
      - Any preprocessing you did before chunking (e.g., stripping HTML, removing headers)
      - What your final chunk count was across all documents -->
 
-**Chunk size:**
+**Chunk size:** 600
 
-**Overlap:**
+**Overlap:** 150
 
-**Why these choices fit your documents:**
+**Why these choices fit your documents:** My sources are highly diverse. Some are structured as medium-sized articles, such as the official university website and the school student newspaper (*The Brandeis Hoot*), where important context spans multiple sentences. On the other hand, Reddit sources include informal comments that are only a sentence or two long. Choosing a fixed baseline of 600 characters ensures that short Reddit posts remain fully intact within a single chunk, while a 150-character overlap prevents critical details from being cut in half and losing context when splitting the longer, official articles.
 
-**Final chunk count:**
+**Final chunk count:** 61
 
 ---
 
