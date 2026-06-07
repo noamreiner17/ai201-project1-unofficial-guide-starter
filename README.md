@@ -32,12 +32,6 @@ The Unofficial Guide will focus specifically on Brandeis first-year housing, cov
 | 2 |Brandeis University - Massell Quad|Offical Website| https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/massell.html|
 | 3 |Brandeis University - North Quad|Offical Website | https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/north.html|
 | 4 |Brandeis University - East Quad|Offical Website| https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/east.html|
-| # | Source | Type | URL or file path |
-|---|--------|------|-----------------|
-| 1 |Brandeis University - Information for First-Years, Midyears and Transfers|Offical Website| https://www.brandeis.edu/dcl/housing-on-campus/new-first-year/index.html|
-| 2 |Brandeis University - Massell Quad|Offical Website| https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/massell.html|
-| 3 |Brandeis University - North Quad|Offical Website | https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/north.html|
-| 4 |Brandeis University - East Quad|Offical Website| https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/east.html|
 | 5 | Massell vs. North Quad Comprehensive Breakdown | Student Forum Thread | https://www.reddit.com/r/brandeis/comments/1hfxjfr/dorms_and_housing/ |
 | 6 | First-Year Quad Hierarchy & Building Attributes | Student Forum Thread | https://www.reddit.com/r/brandeis/comments/1kgl5u2/freshman_dorms/ |
 | 7 | The Shapiro Forced Triple and Basement Warning | Student Forum Comment | https://www.reddit.com/r/brandeis/comments/1kgl5u2/freshman_dorms/ |

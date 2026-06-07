@@ -11,7 +11,11 @@
 
 <!-- What domain did you choose? Why is this knowledge valuable and hard to find through official channels? -->
 
+The domain I chose is an unofficial guide for first-year undergraduate housing. This knowledge is incredibly valuable because coming to college well-prepared can drastically ease a student's transition into their academic year and significantly reduce overall stress. Official university channels will not necessarily highlight the downsides, structural flaws, or practical tricks of moving into campus dorms, as doing so does not benefit their institutional image. Therefore, unofficial channels is essential to increasing the readiness and confidence of incoming students.
+
 ---
+
+## Documents
 
 ## Documents
 
@@ -20,16 +24,20 @@
 
 | # | Source | Description | URL or location |
 |---|--------|-------------|-----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-| 6 | | | |
-| 7 | | | |
-| 8 | | | |
-| 9 | | | |
-| 10 | | | |
+| 1 | Brandeis University - Information for First-Years, Midyears and Transfers | Official guidance on housing policies, timelines, and basic first-year setups. | https://www.brandeis.edu/dcl/housing-on-campus/new-first-year/index.html |
+| 2 | Brandeis University - Massell Quad | Official university descriptions of amenities and halls within Massell Quad. | https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/massell.html |
+| 3 | Brandeis University - North Quad | Official university descriptions of layouts and features of North Quad buildings. | https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/north.html |
+| 4 | Brandeis University - East Quad | Official university page detailing East Quad's facilities and traditional setups. | https://www.brandeis.edu/dcl/housing-on-campus/residence-halls/east.html |
+| 5 | Massell vs. North Quad Comprehensive Breakdown | Student forum thread debating geographic realities, hills, and dining hall proximities. | https://www.reddit.com/r/brandeis/comments/1hfxjfr/dorms_and_housing/ |
+| 6 | First-Year Quad Hierarchy & Building Attributes | Student thread forming an explicit tier-list of buildings based on flooring and desk space. | https://www.reddit.com/r/brandeis/comments/1kgl5u2/freshman_dorms/ |
+| 7 | The Shapiro Forced Triple and Basement Warning | Student forum comment detailing room congestion and the lack of third-floor elevators. | https://www.reddit.com/r/brandeis/comments/1kgl5u2/freshman_dorms/ |
+| 8 | The Freshman Roommate Matching Form Reality | Discussion regarding how random matching works and the honesty needed for lifestyle forms. | https://www.reddit.com/r/brandeis/comments/1stwmdh/first_year_housing/ |
+| 9 | Gordon Hall Natural Triple Structural Nuances | Deep student dive explaining storage configurations and missing floor plan realities. | https://www.reddit.com/r/brandeis/comments/1mofavh/gordon_hall_double/ |
+| 10 | Cable Hall Floor Assignment Logistics | Mapping of floor structures, bathroom assignments, and laundry access within Cable Hall. | https://www.reddit.com/w26pxh/cable_hall/ |
+| 11 | The Infrastructure Reality Check (No A/C & Flooding Risk) | Direct student warnings concerning zero air conditioning and flooding risks in basement rooms. | https://www.reddit.com/r/brandeis/comments/1bm9fal/dorms_amenities/ |
+| 12 | Downstream Strategy: First-Year to Sophomore Lottery Shift | Student explanation of how freshman choices impacts the sophomore housing lottery numbers. | https://www.reddit.com/r/brandeis/comments/1rndsdr/housing_numbers/ |
+| 14 | The Truth About "Overflow" Placements | Commentary addressing over-admissions and the reality of being placed outside standard quads. | https://www.reddit.com/r/brandeis/comments/1hfxjfr/dorms_and_housing/ |
+| 15 | Brandeis Considering Demolition of East Quad Following Completion of New Residence Hall | Student newspaper investigative piece about shifts in the physical housing campus footprint. | https://brandeishoot.com/brandeis-considering-demolition-of-east-quad-following-completion-of-new-residence-hall/ |
 
 ---
 
@@ -40,11 +48,11 @@
      numbers fit the structure of your documents.
      A review-heavy corpus warrants different chunking than a long FAQ. -->
 
-**Chunk size:**
+**Chunk size:** 600 characters  
 
-**Overlap:**
+**Overlap:** 150 characters  
 
-**Reasoning:**
+**Reasoning:** My sources are highly diverse. Some are structured as medium-sized articles, such as the official university website and the school student newspaper (*The Brandeis Hoot*), where important context spans multiple sentences. On the other hand, Reddit sources include informal comments that are only a sentence or two long. Choosing a fixed baseline of 600 characters ensures that short Reddit posts remain fully intact within a single chunk, while a 150-character overlap prevents critical details from being cut in half and losing context when splitting the longer, official articles.
 
 ---
 
@@ -56,11 +64,14 @@
      would you weigh in choosing a different embedding model — context length, multilingual
      support, accuracy on domain-specific text, latency? -->
 
-**Embedding model:**
+**Embedding model:** all-MiniLM-L6-v2 via sentence-transformers
 
-**Top-k:**
+**Top-k:** 4
 
 **Production tradeoff reflection:**
+I am using all-MiniLM-L6-v2 because it runs locally, has low latency, and is highly efficient for a small-scale specialized dataset like Brandeis housing (small school :)). I selected a top-k of 4 chunks because my domain relies on contrasting perspectives (offical and unoffical sources). Retrieving 4 chunks ensures that the user can anticipate information from both sides.
+
+If deploying this at scale without cost constraints, I would upgrade to a commercial model like text-embedding-3-large. This would provide a larger context window to ingest entire multi-comment Reddit threads without fragmenting them, and offer better semantic accuracy when interpreting messy student slang, typos, and specific campus abbreviations.
 
 ---
 
@@ -73,11 +84,11 @@
 
 | # | Question | Expected answer |
 |---|----------|-----------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+| 1 | Which freshman housing is the best? | North and Massell offer better dorm facilities, however their locations provide different benefits. East Quad offers the worst facilities and is mostly used for overflow. |
+| 2 | How does the housing application work for freshmen, and what do students advise about the matching form? | Officially, students complete a lifestyle questionnaire on the DCL portal for random matching. Unofficially, students emphasize being completely honest about sleeping/cleanliness habits rather than answering ideally, to avoid bad pairings. |
+| 3 | What should incoming freshmen expect regarding storage and room layouts in the quads? | Official sites promise basic furniture, but students note that layouts vary wildly between quads. For example, some rooms have built-in open shelves over the beds and under-bed drawers, meaning floor layouts are highly dependent on which building you get. |
+| 4 | What is a "forced triple" and which first-year building is it most commonly found in? | A forced triple is a standard double room that the university fills with three students due to high enrollment. Student warnings explicitly point out that these crowded setups are most common in Shapiro Hall. |
+| 5 | What happens if the main freshman quads fill up due to high enrollment? | When Brandeis over-admits a freshman class and Massell or North fill to capacity, first-year students face "overflow placement." This means they are assigned to live outside the designated freshman areas, typically in East Quad. |
 
 ---
 
@@ -87,10 +98,9 @@
      Consider: noisy or inconsistent documents, missing source attribution, off-topic
      retrieval, chunks that split key information across boundaries. -->
 
-1.
+1. **Hyper-Local Abbreviations and Isolated Hall Names:** Incoming freshmen will likely search for broad terms like "Massell Quad" or "North Quad," but seasoned students on Reddit rarely use those official quad names. Instead, they drop abbreviations, specific building names like "Shapiro," "DeRoy," "Usen," or "Cable" without explicitly stating which quad they belong to. Because standard embedding models look for semantic similarity, a chunk that only mentions "Usen features tile floors" might not rank highly when a user searches for "Massell Quad layout." This language gap between official administrative terms and shorthand student slang risks burying the exact answers the user is looking for.
 
-2.
-
+2. **Conflicting Official vs. Unofficial information:** Because the dataset deliberately contrasts university text with raw student reviews, the LLM will frequently encounter contradictory information within the retrieved context.
 ---
 
 ## Architecture
