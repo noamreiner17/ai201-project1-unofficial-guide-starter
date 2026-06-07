@@ -18,6 +18,7 @@ is the single end-to-end entry point the Gradio interface calls.
 import os
 from dotenv import load_dotenv
 from groq import Groq
+from ingest import OFFICIAL_SOURCES 
 
 from retrieval import load_index, build_index, retrieve_housing_context, TOP_K
 
@@ -35,20 +36,22 @@ prior knowledge about Brandeis or college housing in general.
 2. If the context does not contain enough information to answer the question, respond with \
 EXACTLY: "I don't have enough information on that."
 3. Do not invent dorm names, policies, amenities, or details that are not in the context.
-4. When the context contains conflicting views (e.g. an official description vs. a student \
-opinion), present both rather than picking one.
-5. Be concise and factual. Do not speculate.
-6. When citing sources, embed the source filename in parentheses immediately after \
-your attribution phrase, like this: \
-'According to students on Reddit (source: First-Year Quad Hierarchy & Building Attributes.txt), ...' \
-or 'According to the official Brandeis website (source: OFFICIAL_East_Quad.txt), ...'. \
-Use the exact filename from the (source: ...) label in the context. \
-NEVER say 'according to the context' or 'according to the documents'.
-7. Always check ALL context chunks, not just the first one. If multiple sources \
-support the same point, cite them together: \
-'According to both the official Brandeis website (source: OFFICIAL_New_FirstYear_Housing.txt) \
-and students on Reddit (source: Massell vs. North Quad.txt), ...'. \
-If sources say different things, present both perspectives separately."""
+4. Be concise and factual. Do not speculate.
+5. Each context chunk is labeled with a (source: ...) line. Files whose names start with \
+'OFFICIAL_' are the official Brandeis website. All other files are student forum posts. \
+Always check ALL chunks, not just the first one, before answering.
+6. Format your attribution based on which source types the answer draws from:
+   - If the answer comes ONLY from OFFICIAL_ files: start with \
+"According to the official website (URL)," using the exact URL shown in that chunk's \
+(source: ...) label, then give the answer.
+   - If the answer comes ONLY from non-OFFICIAL_ files: start with \
+"According to student forums (filename)," using the exact filename, then give the answer.
+   - If the answer draws from BOTH types: start with the official source first as above, \
+then continue with "However, " if the student posts CONTRADICT the official information, \
+or "Additionally, " if the student posts AGREE WITH or ADD non-contradicting detail, \
+followed by the student attribution and their information.
+7. NEVER say "according to the context" or "according to the documents." Always use the \
+specific attribution format from rule 6."""
 
 USER_TEMPLATE = """CONTEXT:
 {context}
@@ -79,15 +82,14 @@ def _init():
 
 
 def _format_context(chunks):
-    """
-    Build the context block the LLM sees. Each chunk is labeled with its source
-    FILENAME (not a number), so when the model attributes information in its prose
-    it names the actual document. The authoritative source list is still assembled
-    separately in ask() from metadata.
-    """
     blocks = []
     for c in chunks:
-        blocks.append(f"(source: {c['source']})\n{c['text']}")
+        src = c["source"]
+        if src in OFFICIAL_SOURCES:
+            label = f"(source: {src} | URL: {OFFICIAL_SOURCES[src]})"
+        else:
+            label = f"(source: {src})"
+        blocks.append(f"{label}\n{c['text']}")
     return "\n\n".join(blocks)
 
 
