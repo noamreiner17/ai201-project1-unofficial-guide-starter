@@ -130,13 +130,6 @@ If deploying this at scale without cost constraints, I would upgrade to a commer
      "I'll give Claude my Chunking Strategy section and ask it to implement chunk_text()
      with my specified chunk size and overlap" is a plan. -->
 
-Milestone 5 — Generation and interface:
-
-Used Claude with my grounding requirement + the example citation format; asked for the system prompt, ask() function, and Gradio UI.
-It produced a strict context-only system prompt with a fixed refusal string, an ask() that builds the source list programmatically from metadata, and a working Gradio interface.
-I iterated on citation formatting — the model kept saying "according to the context" and "Document N."
-I directed: label context by filename not number, distinguish official ("official website") from student ("student forums") sources, and use a "However"/"Additionally" structure when both source types contribute.
-
 **Milestone 3 — Ingestion and chunking:**
 
 

@@ -141,9 +141,11 @@ I also instruct the model to reference sources within its response. For example,
 
 **What the system returned:** At k=4, the system returned "I don't have enough information on that", though the answer (overflow → East Quad) existed in the sources.
 
-**Root cause (tied to a specific pipeline stage):** This was a retrieval-ranking failure, not a generation failure. The relevant fact lives in a chunk from Massell_vs_North_Quad_5 that is mostly about North Quad — the East Quad overflow detail is a single clause ("they only house freshmen there when they run out of housing") buried in a longer positive review. Because the chunk's embedding is dominated by the North Quad content, it ranked at position 5–6 for an overflow query, below the top-4 cutoff. Compounding this, the user's vocabulary ("fill up," "high enrollment," "overflow") doesn't match the student phrasing ("run out of housing"), which is exactly the official-vs-student vocabulary gap predicted in Anticipated Challenge 1. So the correct chunk was never passed to the LLM, and the model correctly refused rather than inventing an answer.
+**Root cause (tied to a specific pipeline stage):**
+This was a retrieval-ranking failure, not a generation failure. The relevant fact lives in a chunk from Massell_vs_North_Quad_5 that is mostly about North Quad — the East Quad overflow detail is a single clause ("they only house freshmen there when they run out of housing") buried in a longer positive review. Because the chunk's embedding is dominated by the North Quad content, it ranked at position 5–6 for an overflow query, below the top-4 cutoff. Compounding this, the user's vocabulary ("fill up," "high enrollment," "overflow") doesn't match the student phrasing ("run out of housing"), which is exactly the official-vs-student vocabulary gap predicted in Anticipated Challenge 1. So the correct chunk was never passed to the LLM, and the model correctly refused rather than inventing an answer.
 
-**What you would change to fix it:** I raised top-k from 4 to 6, which pulled the overflow chunk into the retrieved set and let the system answer correctly. A more robust fix would be re-chunking so that distinct topics (North Quad praise vs. East Quad overflow) land in separate chunks, giving the overflow fact its own focused embedding. Also adding the official East Quad and first-year housing pages also helped, since they describe overflow in vocabulary closer to the query.
+**What you would change to fix it:**
+I raised top-k from 4 to 6, which pulled the overflow chunk into the retrieved set and let the system answer correctly. A more robust fix would be re-chunking so that distinct topics (North Quad praise vs. East Quad overflow) land in separate chunks, giving the overflow fact its own focused embedding. Also adding the official East Quad and first-year housing pages also helped, since they describe overflow in vocabulary closer to the query.
 
 ---
 
@@ -153,11 +155,9 @@ I also instruct the model to reference sources within its response. For example,
      Answer both questions with at least 2–3 sentences each. -->
 
 **One way the spec helped you during implementation:**
-
 Writing the Chunking Strategy and Retrieval Approach sections in planning.md before coding meant I could hand those exact parameters (600-char chunks, 150 overlap, all-MiniLM-L6-v2, ChromaDB) to an AI tool and get implementation code that matched my design instead of generic boilerplate. Having the parameters fixed in advance also made debugging straightforward — when chunks behaved unexpectedly, I had a written spec to check the implementation against rather than second-guessing what I'd intended.
 
 **One way your implementation diverged from the spec, and why:**
-
 Considering the failed case described above: In my planning.md specified top-k = 4 (as suggested), but during Milestone 4 testing I found that the overflow answer (evaluation question 5) consistently ranked at position 5–6 and never surfaced at k=4, causing the system to refuse a question it should have answered. I raised top-k to 6 so the correct chunk would be retrieved. 
 ---
 
