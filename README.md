@@ -159,6 +159,7 @@ Writing the Chunking Strategy and Retrieval Approach sections in planning.md bef
 
 **One way your implementation diverged from the spec, and why:**
 Considering the failed case described above: In my planning.md specified top-k = 4 (as suggested), but during Milestone 4 testing I found that the overflow answer (evaluation question 5) consistently ranked at position 5–6 and never surfaced at k=4, causing the system to refuse a question it should have answered. I raised top-k to 6 so the correct chunk would be retrieved. 
+
 ---
 
 ## AI Usage
