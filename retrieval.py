@@ -120,8 +120,10 @@ if __name__ == "__main__":
 
     # 3 of the 5 evaluation-plan queries from planning.md
     test_queries = [
+        "Which freshman housing is the best?",
+        "How does the housing application work / matching form advice?",
+        "Storage and room layouts in the quads?",
         "What is a forced triple and which building is it most common in?",
-        "What do students advise about the roommate matching form?",
         "What happens if the freshman quads fill up due to high enrollment?",
     ]
 

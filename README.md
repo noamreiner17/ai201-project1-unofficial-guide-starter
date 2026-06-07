@@ -71,7 +71,11 @@ The Unofficial Guide will focus specifically on Brandeis first-year housing, cov
 
 **Model used:**
 
+all-MiniLM-L6-v2, loaded locally via the sentence-transformers library. I chose it because it runs entirely on-machine with no API key and no rate limits, which fits a small, specialized data - Brandeis first-year housing. It produced 61 chuncks (which is a great amount for this size project), which are stored in ChromaDB
+
 **Production tradeoff reflection:**
+
+If I were deploying this for real users without cost constraints, I would think about moving it to a big hosted model like OpenAI's text-embedding-3-large. The main gains would be a larger context window — letting me embed entire multi-comment Reddit threads as single units instead of fragmenting them which would increase accuracy (on semantic, slang typos and specific school abbreviations). The tradeoffs would be per-query API cost, network latency, and a dependency on an external service. For a student project with a small corpus, all-MiniLM-L6-v2's locality and zero cost outweigh the accuracy ceiling. at scale, the vocabulary-gap problem (my Anticipated Challenge 1) would justify the upgrade.
 
 ---
 
@@ -86,7 +90,15 @@ The Unofficial Guide will focus specifically on Brandeis first-year housing, cov
 
 **System prompt grounding instruction:**
 
+I enforce grounding primarily through the system prompt that is sent to Groq's model. The prompt gives explicit strict instructions rather than general suggestions. It tells the model to answer using only the provided context, avoid using outside knowledge such as: never invent dorm names, housing policies, or housing details, and return the exact phrase "I don't have enough information on that." whenever the retrieved documents do not contain enough information to answer the question. This allows the system to reject questions that fall outside the scope of the knowledge base rather than generating a plausible-sounding answer.
+
+To make the retrieved information easier for the model to interpret, every chunk is labeled with its source before being inserted into the context window. Official university documents are tagged with their source URL, while student-generated content is tagged with its filename (converted to txt files as Reddit block scrapping request). This helps the model distinguish between official university information and student experiences or opinions when generating a response.
+
 **How source attribution is surfaced in the response:**
+
+Source attribution is handled programmatically rather than relying entirely on the language model. After retrieval, the ask() function collects and deduplicates the source names from the metadata of the chunks that were actually retrieved. These sources are then returned separately from the generated answer and displayed in the Gradio interface under a dedicated "Retrieved from" section.
+
+I also instruct the model to reference sources within its response. For example, official information is cited as coming from the university website, while student perspectives are attributed to Reddit discussions. When both source types contribute to an answer, the model is instructed to clearly separate official information from student experiences. However, because the source list is generated directly from retrieval metadata, users can always see which documents were used even if the model's wording varies.
 
 ---
 
@@ -98,11 +110,11 @@ The Unofficial Guide will focus specifically on Brandeis first-year housing, cov
 
 | # | Question | Expected answer | System response (summarized) | Retrieval quality | Response accuracy |
 |---|----------|-----------------|------------------------------|-------------------|-------------------|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
+| 1 |Which freshman housing is the best?| | | | |
+| 2 | How does the housing application work for freshmen, and what do students advise about the matching form? | | | | |
+| 3 | What should incoming freshmen expect regarding storage and room layouts in the quads? | | | | |
+| 4 | What is a "forced triple" and which first-year building is it most commonly found in? |  | | | |
+| 5 | What happens if the main freshman quads fill up due to high enrollment? | | | | |
 
 **Retrieval quality:** Relevant / Partially relevant / Off-target  
 **Response accuracy:** Accurate / Partially accurate / Inaccurate
